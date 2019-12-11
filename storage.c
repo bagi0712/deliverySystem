@@ -51,7 +51,7 @@ static void printStorageInside(int x, int y) {
 //and allocate memory to the context pointer
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
-	
+	deliverySystem[x][y].cnt = 0;
 }
 
 //get password input and check if it is correct for the cell (x,y)
@@ -80,7 +80,7 @@ int str_backupSystem(char* filepath) {
 //char* filepath : filepath and name to read config parameters (row, column, master password, past contexts of the delivery system
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
-	
+	return 0;
 }
 
 //free the memory of the deliverySystem 
@@ -165,6 +165,7 @@ int str_extractStorage(int x, int y) {
 //int nBuilding, int nRoom : my building/room numbers
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
+	int cnt;
 	
 	return cnt;
 }
