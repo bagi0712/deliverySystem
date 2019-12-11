@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
 		printf("0. exit\n");
 		printf("----------------------------------------------\n");
 		printf("command : ");
-		
+
         //3. getting user command
 		cmd = getIntegerInput();	
 		

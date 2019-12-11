@@ -3,6 +3,8 @@
 #include <string.h>
 #include "storage.h"
 
+#define STORAGE_FILEPATH 		"storage.txt"
+
 /* 
   definition of storage cell structure ----
   members :
@@ -51,14 +53,30 @@ static void printStorageInside(int x, int y) {
 //and allocate memory to the context pointer
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
+	deliverySystem[x][y].building = 0;
+	deliverySystem[x][y].room = 0;
 	deliverySystem[x][y].cnt = 0;
+	
+	x = 0;
+	y = 0;
 }
 
 //get password input and check if it is correct for the cell (x,y)
 //int x, int y : cell for password check
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y) {
+	char passwdInput[PASSWD_LEN+1]; //입력받을 변수 
 	
+	scanf("%s", &passwdInput);
+	
+	if (passwdInput == deliverySystem[x][y].passwd)
+	{
+		return 0;
+	}
+	else
+	{
+		return -1;
+	}
 }
 
 
@@ -80,6 +98,22 @@ int str_backupSystem(char* filepath) {
 //char* filepath : filepath and name to read config parameters (row, column, master password, past contexts of the delivery system
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
+	int x, y;
+	FILE *fp = NULL;
+	
+	fp = fopen(filepath, "r"); //파일 열기 
+	if (fp == NULL) //파일 열기 실패시 -1 반환 
+	{
+		return -1;
+	}
+	
+	fscanf(fp, "%d %d\n", &systemSize[0], &systemSize[1]); //첫 두 정수를 읽어와서  systemSize에 넣음 
+	fscanf(fp, "%s\n", masterPassword); //두번째 줄의 문자열은 마스터키
+	fscanf(fp, "%d %d", &x, &y);
+	fscanf(fp, "%d %d", &deliverySystem[x][y].building, &deliverySystem[x][y].room);
+	
+		
+	fclose(fp); //파일 닫기 
 	return 0;
 }
 
@@ -147,7 +181,18 @@ int str_checkStorage(int x, int y) {
 //char passwd[] : password string (4 characters)
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
+	FILE *fp = NULL;
 	
+	fp = fopen(STORAGE_FILEPATH, "w"); //파일 열기 
+	if (fp == NULL) //파일 열기 실패시 -1 반환 
+	{
+		return -1;
+	}
+	
+	fprintf(fp, "%d %d %d %d %4s %100s\n", x, y, nBuilding, nRoom, msg, passwd);
+		
+	fclose(fp); //파일 닫기 
+	return 0;
 }
 
 
@@ -157,7 +202,15 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //int x, int y : coordinate of the cell to extract
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
-	
+	if (inputPasswd(x, y) == 0)
+	{
+		printStorageInside(x, y);
+		initStorage(x, y);
+		
+		return 0;
+	}
+	else
+		return -1;
 }
 
 //find my package from the storage
@@ -165,7 +218,8 @@ int str_extractStorage(int x, int y) {
 //int nBuilding, int nRoom : my building/room numbers
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
-	int cnt;
+	int cnt = 0;
+	cnt++;
 	
 	return cnt;
 }
