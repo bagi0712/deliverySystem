@@ -106,25 +106,27 @@ int str_createSystem(char* filepath) {
 	{
 		return -1;
 	}
-	
-	
-	
+		
 	fscanf(fp, "%d %d\n", &systemSize[0], &systemSize[1]); //첫 두 정수를 읽어와서  systemSize에 넣음 
 	fscanf(fp, "%s\n", masterPassword); //두번째 줄의 문자열은 마스터키
 	
-	
+	while (fscanf("%s", deliverySystem[x][y].context) != EOF)
+	{
 		fscanf(fp, "%d %d", &x, &y);
+		fscanf(fp, "%d %d", &deliverySystem[x][y].building, &deliverySystem[x][y].room);
+		fscanf(fp, "%s", deliverySystem[x][y].passwd);
+		fscanf(fp, "%s\n", deliverySystem[x][y].context);
+		deliverySystem[x][y].cnt++;
 		storedCnt++;
-	
-	
-		
+	}
+	 	
 	fclose(fp); //파일 닫기 
 	return 0;
 }
 
 //free the memory of the deliverySystem 
 void str_freeSystem(void) {
-	
+	free(deliverySystem);
 }
 
 
