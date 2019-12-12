@@ -50,12 +50,13 @@ static void printStorageInside(int x, int y) {
 
 //initialize the storage
 //set all the member variable as an initial value
-//and allocate memory to the context pointer
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
 	deliverySystem[x][y].building = 0;
 	deliverySystem[x][y].room = 0;
 	deliverySystem[x][y].cnt = 0;
+	strcpy(deliverySystem[x][y].passwd, 0);
+	deliverySystem[x][y].context = NULL;
 }
 
 //get password input and check if it is correct for the cell (x,y)
@@ -64,15 +65,15 @@ static void initStorage(int x, int y) {
 static int inputPasswd(int x, int y) {
 	int i;
 	int cnt = 0;
-	char passwdInput[PASSWD_LEN+1]; //입력받을 변수 
+	char passwdInput[PASSWD_LEN+1]; //password를 입력받을 변수 
 	
 	scanf("%s", passwdInput);
 	
 	for (i=0;i<PASSWD_LEN;i++)
 	{
-		if (passwdInput[i] == deliverySystem[x][y].passwd[i])
+		if ((passwdInput[i] == deliverySystem[x][y].passwd[i]) || (passwdInput[i] == masterPassword[i])) //암호를 한글자씩 비교
 		{
-			cnt++;
+			cnt++; //모든 암호가 일치하면 cnt는 암호 글자수와 같아짐 
 		}
 	}
 	if (cnt = PASSWD_LEN)
@@ -99,14 +100,15 @@ int str_backupSystem(char* filepath) {
 	FILE *fp = NULL;
 	
 	fp = fopen(STORAGE_FILEPATH, "w"); //쓰기 모드로 파일 열기 
-	if (fp == NULL) //파일 열기 실패시 -1 반환 
+	if (fp == NULL) //파일 열기 실패시 -1 반환
 	{
 		return -1;
 	}
 
-	fprintf(fp, "%d %d\n%s\n", systemSize[0], systemSize[1], masterPassword); 
+	fprintf(fp, "%d %d\n%s\n", systemSize[0], systemSize[1], masterPassword); //systemSize와 masterPassword를 그대로 입력 
 
-	for (i=0;i<systemSize[0];i++)
+	//현재 보관함들의 상태 및 설정 값들을 파일에 저장
+	for (i=0;i<systemSize[0];i++) 
 	{
 		for (j=0;j<systemSize[1];j++)
 			if (deliverySystem[i][j].cnt != 0)
@@ -124,10 +126,10 @@ int str_backupSystem(char* filepath) {
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
 	int i, j;
-	int x, y;
+	int x, y; //보관함의 행과 열 
 	FILE *fp = NULL;
 	
-	fp = fopen(filepath, "r"); //파일 열기 
+	fp = fopen(filepath, "r"); //읽기 모드로 파일 열기 
 	if (fp == NULL) //파일 열기 실패시 -1 반환 
 	{
 		return -1;
@@ -266,9 +268,17 @@ int str_extractStorage(int x, int y) {
 //int nBuilding, int nRoom : my building/room numbers
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
+	int i, j;
 	int cnt = 0;
-
-	cnt++;
 	
+	for (i=0;i<systemSize[0];i++)
+	{
+		for (j=0;j<systemSize[1];j++)
+		{
+			if ((deliverySystem[i][j].building == nBuilding) && (deliverySystem[i][j].building == nRoom) && (deliverySystem[i][j].cnt != 0))
+				printf(" -----------> Found a package in (i, j)");
+				cnt++;
+		}	
+	}
 	return cnt;
 }
