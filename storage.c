@@ -56,9 +56,6 @@ static void initStorage(int x, int y) {
 	deliverySystem[x][y].building = 0;
 	deliverySystem[x][y].room = 0;
 	deliverySystem[x][y].cnt = 0;
-	
-	x = 0;
-	y = 0;
 }
 
 //get password input and check if it is correct for the cell (x,y)
@@ -98,7 +95,9 @@ int str_backupSystem(char* filepath) {
 //char* filepath : filepath and name to read config parameters (row, column, master password, past contexts of the delivery system
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
+	int i, j;
 	int x, y;
+	char c;
 	FILE *fp = NULL;
 	
 	fp = fopen(filepath, "r"); //파일 열기 
@@ -110,7 +109,20 @@ int str_createSystem(char* filepath) {
 	fscanf(fp, "%d %d\n", &systemSize[0], &systemSize[1]); //첫 두 정수를 읽어와서  systemSize에 넣음 
 	fscanf(fp, "%s\n", masterPassword); //두번째 줄의 문자열은 마스터키
 	
-	while (fscanf("%s", deliverySystem[x][y].context) != EOF)
+	deliverySystem = (storage_t**)malloc(systemSize[0]*sizeof(storage_t*));
+	
+	for(i=0;i<systemSize[0];i++) 
+	{
+		deliverySystem[i] = (storage_t*)malloc(systemSize[1]*sizeof(storage_t));
+	}
+	
+	for(i=0;i<systemSize[0];i++) 
+	{
+		for(j=0;j<systemSize[1];j++)
+			deliverySystem[i][j].context = (char *)malloc(100*sizeof(char));
+	}
+	
+	while (!feof(fp))
 	{
 		fscanf(fp, "%d %d", &x, &y);
 		fscanf(fp, "%d %d", &deliverySystem[x][y].building, &deliverySystem[x][y].room);
@@ -118,7 +130,7 @@ int str_createSystem(char* filepath) {
 		fscanf(fp, "%s\n", deliverySystem[x][y].context);
 		deliverySystem[x][y].cnt++;
 		storedCnt++;
-	}
+	}	
 	 	
 	fclose(fp); //파일 닫기 
 	return 0;
