@@ -86,7 +86,26 @@ static int inputPasswd(int x, int y) {
 //char* filepath : filepath and name to write
 //return : 0 - backup was successfully done, -1 - failed to backup
 int str_backupSystem(char* filepath) {
+	int i, j;
+	FILE *fp = NULL;
 	
+	fp = fopen(STORAGE_FILEPATH, "w"); //쓰기 모드로 파일 열기 
+	if (fp == NULL) //파일 열기 실패시 -1 반환 
+	{
+		return -1;
+	}
+
+	fprintf(fp, "%d %d\n%s\n", systemSize[0], systemSize[1], masterPassword); 
+
+	for (i=0;i<systemSize[0];i++)
+	{
+		for (j=0;j<systemSize[1];j++)
+			if (deliverySystem[i][j].cnt != 0)
+				fprintf(fp, "%d %d %d %d %s %s\n", i, j, deliverySystem[i][j].building, deliverySystem[i][j].room, deliverySystem[i][j].passwd, deliverySystem[i][j].context);
+	}
+	
+	fclose(fp); //파일 닫기
+	return 0;
 }
 
 
@@ -97,7 +116,6 @@ int str_backupSystem(char* filepath) {
 int str_createSystem(char* filepath) {
 	int i, j;
 	int x, y;
-	char c;
 	FILE *fp = NULL;
 	
 	fp = fopen(filepath, "r"); //파일 열기 
@@ -111,15 +129,21 @@ int str_createSystem(char* filepath) {
 	
 	deliverySystem = (storage_t**)malloc(systemSize[0]*sizeof(storage_t*));
 	
-	for(i=0;i<systemSize[0];i++) 
+	for (i=0;i<systemSize[0];i++) 
 	{
 		deliverySystem[i] = (storage_t*)malloc(systemSize[1]*sizeof(storage_t));
 	}
 	
-	for(i=0;i<systemSize[0];i++) 
+	for (i=0;i<systemSize[0];i++) 
 	{
 		for(j=0;j<systemSize[1];j++)
 			deliverySystem[i][j].context = (char *)malloc(100*sizeof(char));
+	}
+	
+	for (i=0;i<systemSize[0];i++)
+	{
+		for (j=0;j<systemSize[1];j++)
+			deliverySystem[i][j].cnt = 0;
 	}
 	
 	while (!feof(fp))
@@ -200,18 +224,12 @@ int str_checkStorage(int x, int y) {
 //char passwd[] : password string (4 characters)
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
-	FILE *fp = NULL;
+	deliverySystem[x][y].building = nBuilding;
+	deliverySystem[x][y].room = nRoom;
+	*deliverySystem[x][y].context = msg;
+	deliverySystem[x][y].passwd = passwd;
 	
-	fp = fopen(STORAGE_FILEPATH, "w"); //파일 열기 
-	if (fp == NULL) //파일 열기 실패시 -1 반환 
-	{
-		return -1;
-	}
-	
-	fprintf(fp, "%d %d %d %d %4s %100s\n", x, y, nBuilding, nRoom, msg, passwd);
-		
-	fclose(fp); //파일 닫기 
-	return 0;
+	return 0; 
 }
 
 
@@ -221,6 +239,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //int x, int y : coordinate of the cell to extract
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
+	printf(" - input password for (%d, %d) storage : ", x, y);
 	if (inputPasswd(x, y) == 0)
 	{
 		printStorageInside(x, y);
@@ -238,6 +257,7 @@ int str_extractStorage(int x, int y) {
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
 	int cnt = 0;
+
 	cnt++;
 	
 	return cnt;
