@@ -52,10 +52,10 @@ static void printStorageInside(int x, int y) {
 //set all the member variable as an initial value
 //int x, int y : cell coordinate to be initialized
 static void initStorage(int x, int y) {
-	deliverySystem[x][y].building = 0;
-	deliverySystem[x][y].room = 0;
-	deliverySystem[x][y].cnt = 0;
-	strcpy(deliverySystem[x][y].passwd, 0);
+	deliverySystem[x][y].building = NULL;
+	deliverySystem[x][y].room = NULL;
+	deliverySystem[x][y].cnt = NULL;
+	strcpy(deliverySystem[x][y].passwd, NULL);
 	deliverySystem[x][y].context = NULL;
 }
 
@@ -177,7 +177,16 @@ int str_createSystem(char* filepath) {
 
 //free the memory of the deliverySystem 
 void str_freeSystem(void) {
+	int i, j;
+	
+	//unsign all memories
 	free(deliverySystem);
+	for (i=0;i<systemSize[0];i++)
+	{
+		free(deliverySystem[i]);
+		for (j=0;j<systemSize[1];j++)
+			free(deliverySystem[i][j].context);
+	}
 }
 
 
@@ -272,7 +281,8 @@ int str_extractStorage(int x, int y) {
 	if (inputPasswd(x, y) == 0) //password checking
 	{
 		printStorageInside(x, y); //printing msg string on the screen
-		free(deliverySystem[x][y].context); //re-initializing the storage
+		initStorage(x,y); //re-initializing the storage
+		free(deliverySystem[x][y].context); 
 		
 		return 0;
 	}
