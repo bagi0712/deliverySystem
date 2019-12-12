@@ -64,10 +64,10 @@ static void initStorage(int x, int y) {
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y) {
 	int i;
-	int cnt = 0;
+	int cnt = 0; //Variable to count right letters
 	char passwdInput[PASSWD_LEN+1]; //Variable to receive password 
 	
-	scanf("%s", passwdInput);
+	scanf("%s", passwdInput); //receive password
 	
 	for (i=0;i<PASSWD_LEN;i++)
 	{
@@ -97,7 +97,7 @@ static int inputPasswd(int x, int y) {
 //return : 0 - backup was successfully done, -1 - failed to backup
 int str_backupSystem(char* filepath) {
 	int i, j;
-	FILE *fp = NULL;
+	FILE *fp = NULL; //make a file NULL
 	
 	fp = fopen(STORAGE_FILEPATH, "w"); //Open a file in write mode 
 	if (fp == NULL) //Return -1 if file opening fails
@@ -127,7 +127,7 @@ int str_backupSystem(char* filepath) {
 int str_createSystem(char* filepath) {
 	int i, j;
 	int x, y; //row and column of a storage
-	FILE *fp = NULL;
+	FILE *fp = NULL; //make a file NULl
 	
 	fp = fopen(filepath, "r"); //Open a file in read mode 
 	if (fp == NULL) //Return -1 if file opening fails
@@ -153,6 +153,7 @@ int str_createSystem(char* filepath) {
 			deliverySystem[i][j].context = (char *)malloc(100*sizeof(char));
 	}
 	
+	//initializing deliverySystem[][].cnt to 0
 	for (i=0;i<systemSize[0];i++)
 	{
 		for (j=0;j<systemSize[1];j++)
@@ -163,12 +164,12 @@ int str_createSystem(char* filepath) {
 	//Read storage information 
 	while (!feof(fp))
 	{
-		fscanf(fp, "%d %d", &x, &y);
+		fscanf(fp, "%d %d", &x, &y); //read as row and column
 		fscanf(fp, "%d %d", &deliverySystem[x][y].building, &deliverySystem[x][y].room);
 		fscanf(fp, "%s", deliverySystem[x][y].passwd);
 		fscanf(fp, "%s\n", deliverySystem[x][y].context);
-		deliverySystem[x][y].cnt++;
-		storedCnt++;
+		deliverySystem[x][y].cnt++; //make sure that storage is fulled
+		storedCnt++; //add 1 to number of cells occupied
 	}	
 	 	
 	fclose(fp); //Close the file 
@@ -179,7 +180,7 @@ int str_createSystem(char* filepath) {
 void str_freeSystem(void) {
 	int i, j;
 	
-	//unsign all memories
+	//free all memories
 	free(deliverySystem);
 	for (i=0;i<systemSize[0];i++)
 	{
@@ -261,7 +262,7 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 	//Put each input value into storage
 	deliverySystem[x][y].building = nBuilding;
 	deliverySystem[x][y].room = nRoom;
-	deliverySystem[x][y].context = (char *)malloc(msgCnt*sizeof(char)); //allocate memory
+	deliverySystem[x][y].context = (char *)malloc(msgCnt*sizeof(char)); //allocate memory for context
 	deliverySystem[x][y].context = msg;
 	strcpy(deliverySystem[x][y].passwd, passwd);
 	deliverySystem[x][y].cnt++;
@@ -296,7 +297,7 @@ int str_extractStorage(int x, int y) {
 //return : number of packages that the storage system has
 int str_findStorage(int nBuilding, int nRoom) {
 	int i, j;
-	int cnt = 0;
+	int cnt = 0; //number of my packages
 	
 	for (i=0;i<systemSize[0];i++)
 	{
@@ -304,7 +305,7 @@ int str_findStorage(int nBuilding, int nRoom) {
 		{
 			//Test that the building number and room number match the storage's
 			if ((deliverySystem[i][j].building == nBuilding) && (deliverySystem[i][j].building == nRoom) && (deliverySystem[i][j].cnt != 0))
-				printf(" -----------> Found a package in (i, j)");
+				printf(" -----------> Found a package in (%d, %d)", i, j); //print the cells which has my package
 				cnt++;
 		}	
 	}

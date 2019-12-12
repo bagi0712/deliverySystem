@@ -181,6 +181,18 @@ int main(int argc, char *argv[]) {
 				{
 					printf(" -----------> Failed to find my package!\n");
 				}
+				else
+				{
+						for (i=0;i<systemSize[0];i++)
+						{
+							for (j=0;j<systemSize[1];j++)
+							{
+								//Test that the building number and room number match the storage's
+								if ((deliverySystem[i][j].building == nBuilding) && (deliverySystem[i][j].building == nRoom) && (deliverySystem[i][j].cnt != 0))
+									printf(" -----------> Found a package in (%d, %d)", i, j); //print the cells which has my package
+							}	
+						}
+				}
 				
 				break;
 				
