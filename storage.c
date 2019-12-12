@@ -107,10 +107,15 @@ int str_createSystem(char* filepath) {
 		return -1;
 	}
 	
+	
+	
 	fscanf(fp, "%d %d\n", &systemSize[0], &systemSize[1]); //첫 두 정수를 읽어와서  systemSize에 넣음 
 	fscanf(fp, "%s\n", masterPassword); //두번째 줄의 문자열은 마스터키
-	fscanf(fp, "%d %d", &x, &y);
-	fscanf(fp, "%d %d", &deliverySystem[x][y].building, &deliverySystem[x][y].room);
+	
+	
+		fscanf(fp, "%d %d", &x, &y);
+		storedCnt++;
+	
 	
 		
 	fclose(fp); //파일 닫기 
