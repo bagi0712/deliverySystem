@@ -65,15 +65,15 @@ static void initStorage(int x, int y) {
 static int inputPasswd(int x, int y) {
 	int i;
 	int cnt = 0;
-	char passwdInput[PASSWD_LEN+1]; //password를 입력받을 변수 
+	char passwdInput[PASSWD_LEN+1]; //Variable to receive password 
 	
 	scanf("%s", passwdInput);
 	
 	for (i=0;i<PASSWD_LEN;i++)
 	{
-		if ((passwdInput[i] == deliverySystem[x][y].passwd[i]) || (passwdInput[i] == masterPassword[i])) //암호를 한글자씩 비교
+		if ((passwdInput[i] == deliverySystem[x][y].passwd[i]) || (passwdInput[i] == masterPassword[i])) //Compare passwords
 		{
-			cnt++; //모든 암호가 일치하면 cnt는 암호 글자수와 같아짐 
+			cnt++; //cnt equals password letter if all passwords match
 		}
 	}
 	if (cnt = PASSWD_LEN)
@@ -99,15 +99,15 @@ int str_backupSystem(char* filepath) {
 	int i, j;
 	FILE *fp = NULL;
 	
-	fp = fopen(STORAGE_FILEPATH, "w"); //쓰기 모드로 파일 열기 
-	if (fp == NULL) //파일 열기 실패시 -1 반환
+	fp = fopen(STORAGE_FILEPATH, "w"); //Open a file in write mode 
+	if (fp == NULL) //Return -1 if file opening fails
 	{
 		return -1;
 	}
 
-	fprintf(fp, "%d %d\n%s\n", systemSize[0], systemSize[1], masterPassword); //systemSize와 masterPassword를 그대로 입력 
+	fprintf(fp, "%d %d\n%s\n", systemSize[0], systemSize[1], masterPassword); //Enter systemSize and masterPassword to a file 
 
-	//현재 보관함들의 상태 및 설정 값들을 파일에 저장
+	//Save the current state and setting values of storages to a file
 	for (i=0;i<systemSize[0];i++) 
 	{
 		for (j=0;j<systemSize[1];j++)
@@ -115,7 +115,7 @@ int str_backupSystem(char* filepath) {
 				fprintf(fp, "%d %d %d %d %s %s\n", i, j, deliverySystem[i][j].building, deliverySystem[i][j].room, deliverySystem[i][j].passwd, deliverySystem[i][j].context);
 	}
 	
-	fclose(fp); //파일 닫기
+	fclose(fp); //Close the file
 	return 0;
 }
 
@@ -126,18 +126,20 @@ int str_backupSystem(char* filepath) {
 //return : 0 - successfully created, -1 - failed to create the system
 int str_createSystem(char* filepath) {
 	int i, j;
-	int x, y; //보관함의 행과 열 
+	int x, y; //row and column of a storage
 	FILE *fp = NULL;
 	
-	fp = fopen(filepath, "r"); //읽기 모드로 파일 열기 
-	if (fp == NULL) //파일 열기 실패시 -1 반환 
+	fp = fopen(filepath, "r"); //Open a file in read mode 
+	if (fp == NULL) //Return -1 if file opening fails
 	{
 		return -1;
 	}
 		
-	fscanf(fp, "%d %d\n", &systemSize[0], &systemSize[1]); //첫 두 정수를 읽어와서  systemSize에 넣음 
-	fscanf(fp, "%s\n", masterPassword); //두번째 줄의 문자열은 마스터키
+	fscanf(fp, "%d %d\n", &systemSize[0], &systemSize[1]); //Reads the first two integers and puts them into systemSize
+	fscanf(fp, "%s\n", masterPassword); //The string in the second line is the master key
 	
+	
+	//malloc setting
 	deliverySystem = (storage_t**)malloc(systemSize[0]*sizeof(storage_t*));
 	
 	for (i=0;i<systemSize[0];i++) 
@@ -157,6 +159,8 @@ int str_createSystem(char* filepath) {
 			deliverySystem[i][j].cnt = 0;
 	}
 	
+	
+	//Read storage information 
 	while (!feof(fp))
 	{
 		fscanf(fp, "%d %d", &x, &y);
@@ -167,7 +171,7 @@ int str_createSystem(char* filepath) {
 		storedCnt++;
 	}	
 	 	
-	fclose(fp); //파일 닫기 
+	fclose(fp); //Close the file 
 	return 0;
 }
 
@@ -235,8 +239,20 @@ int str_checkStorage(int x, int y) {
 //char passwd[] : password string (4 characters)
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
+	int msgCnt; //letter count of message
+	int i = 0;
+	
+	//string length calculation
+	while (msg[i] != 0)
+	{
+		i++;
+	}
+	msgCnt = i;
+	
+	//Put each input value into storage
 	deliverySystem[x][y].building = nBuilding;
 	deliverySystem[x][y].room = nRoom;
+	deliverySystem[x][y].context = (char *)malloc(msgCnt*sizeof(char)); //allocate memory
 	deliverySystem[x][y].context = msg;
 	strcpy(deliverySystem[x][y].passwd, passwd);
 	deliverySystem[x][y].cnt++;
@@ -252,10 +268,11 @@ int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_S
 //return : 0 - successfully extracted, -1 = failed to extract
 int str_extractStorage(int x, int y) {
 	printf(" - input password for (%d, %d) storage : ", x, y);
-	if (inputPasswd(x, y) == 0)
+	
+	if (inputPasswd(x, y) == 0) //password checking
 	{
-		printStorageInside(x, y);
-		initStorage(x, y);
+		printStorageInside(x, y); //printing msg string on the screen
+		free(deliverySystem[x][y].context); //re-initializing the storage
 		
 		return 0;
 	}
@@ -275,6 +292,7 @@ int str_findStorage(int nBuilding, int nRoom) {
 	{
 		for (j=0;j<systemSize[1];j++)
 		{
+			//Test that the building number and room number match the storage's
 			if ((deliverySystem[i][j].building == nBuilding) && (deliverySystem[i][j].building == nRoom) && (deliverySystem[i][j].cnt != 0))
 				printf(" -----------> Found a package in (i, j)");
 				cnt++;
