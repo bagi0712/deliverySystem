@@ -62,11 +62,20 @@ static void initStorage(int x, int y) {
 //int x, int y : cell for password check
 //return : 0 - password is matching, -1 - password is not matching
 static int inputPasswd(int x, int y) {
+	int i;
+	int cnt = 0;
 	char passwdInput[PASSWD_LEN+1]; //입력받을 변수 
 	
-	scanf("%s", &passwdInput);
+	scanf("%s", passwdInput);
 	
-	if (passwdInput == deliverySystem[x][y].passwd)
+	for (i=0;i<PASSWD_LEN;i++)
+	{
+		if (passwdInput[i] == deliverySystem[x][y].passwd[i])
+		{
+			cnt++;
+		}
+	}
+	if (cnt = PASSWD_LEN)
 	{
 		return 0;
 	}
@@ -226,8 +235,9 @@ int str_checkStorage(int x, int y) {
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
 	deliverySystem[x][y].building = nBuilding;
 	deliverySystem[x][y].room = nRoom;
-	*deliverySystem[x][y].context = msg;
-	deliverySystem[x][y].passwd = passwd;
+	deliverySystem[x][y].context = msg;
+	strcpy(deliverySystem[x][y].passwd, passwd);
+	deliverySystem[x][y].cnt++;
 	
 	return 0; 
 }
